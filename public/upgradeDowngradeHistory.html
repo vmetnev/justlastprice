@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+
+    <body>
+        <h3>Recommendation table</h3>
+        <table class="recommendationTable"></table>
+        <br><br>
+        <h3>Recommendation dynamics</h3>
+        <table class="upgradeDowngradeHistory"></table>
+
+        <script>
+            let ticker = "XOM"
+            console.log('ticker')
+            getUpgradeDowngradeHistory(ticker)
+
+            async function getUpgradeDowngradeHistory(ticker) {
+                let resp = await fetch('http://127.0.0.1:3001/upgradeDowngradeHistoryData?ticker=XOM')
+                let data = await resp.json()
+                console.log(data)
+                let counter = 0
+                let counter1 = 0
+                let targetTable = document.querySelector('.upgradeDowngradeHistory')
+                let recTable = document.querySelector('.recommendationTable')
+                let bank = []
+                data.forEach(item => {
+                    counter++
+                    if (counter > 20) return
+
+                    // recommendation table
+
+                    if (!bank.includes(item.firm)) {
+                        bank.push(item.firm)
+                        counter1++
+                        let row = document.createElement('tr')
+                        row.classList.add('table-rec-row')
+
+                        let td = document.createElement('td')
+                        td.classList.add('counter')
+                        td.textContent = counter1
+                        row.appendChild(td)
+
+                        td = document.createElement('td')
+                        td.classList.add('firm')
+                        td.textContent = item.firm
+                        row.appendChild(td)
+                        td = document.createElement('td')
+                        td.classList.add('to')
+                        td.textContent = item.toGrade
+
+                        if (item.toGrade === 'Buy' || item.toGrade === 'Overweight') {
+                            td.style = 'background-color:rgb(190, 220, 190);'
+                        } else if (item.toGrade === 'Hold' || item.toGrade === 'Neutral' || item.toGrade ===
+                            'Sector Perform' || item.toGrade ===
+                            'Peer Perform') {
+                            td.style = 'background-color:rgb(239, 249, 183);'
+                        } else if (item.toGrade === 'Sell') {
+                            td.style = 'background-color:rgb(249, 202, 183);'
+                        }
+                        row.appendChild(td)
+                        td = document.createElement('td')
+                        td.classList.add('date')
+                        let date = new Date(parseInt(item.epochGradeDate + "000")).toISOString().split('T')[
+                                0]
+                            .split('-')
+                        date = `${date[2]}-${date[1]}-${date[0]}`
+                        td.textContent = date
+                        row.appendChild(td)
+                        recTable.appendChild(row)
+                    }
+
+                    // dynamics table
+                    let row = document.createElement('tr')
+                    row.classList.add('table-row')
+
+                    let td = document.createElement('td')
+                    td.classList.add('counter')
+
+                    td.textContent = counter
+                    row.appendChild(td)
+
+                    td = document.createElement('td')
+                    td.classList.add('firm')
+                    td.textContent = item.firm
+                    row.appendChild(td)
+
+                    td = document.createElement('td')
+                    td.classList.add('action')
+
+                    let action = (item.action === "main" || item.action === "reit") ? "-" : item.action
+                    if (action == "up") {
+                        td.style = 'background-color:rgb(190, 220, 190)'
+                    } else if (action === "down") {
+                        td.style = 'background-color:rgb(249, 202, 183)'
+                    }
+
+                    td.textContent = action
+                    row.appendChild(td)
+
+                    td = document.createElement('td')
+                    td.classList.add('from')
+                    td.textContent = item.fromGrade
+                    row.appendChild(td)
+
+                    td = document.createElement('td')
+                    td.classList.add('to')
+                    td.textContent = item.toGrade
+
+                    if (item.toGrade === 'Buy' || item.toGrade === 'Overweight') {
+                        td.style = 'background-color:rgb(190, 220, 190);'
+                    } else if (item.toGrade === 'Hold' || item.toGrade === 'Neutral' || item.toGrade ===
+                        'Sector Perform' || item.toGrade ===
+                        'Peer Perform') {
+                        td.style = 'background-color:rgb(239, 249, 183);'
+                    } else if (item.toGrade === 'Sell') {
+                        td.style = 'background-color:rgb(249, 202, 183);'
+                    }
+
+
+
+                    row.appendChild(td)
+
+                    td = document.createElement('td')
+                    td.classList.add('date')
+                    let date = new Date(parseInt(item.epochGradeDate + "000")).toISOString().split('T')[0]
+                        .split('-')
+                    date = `${date[2]}-${date[1]}-${date[0]}`
+
+
+                    td.textContent = date
+                    row.appendChild(td)
+                    targetTable.appendChild(row)
+
+                });
+            }
+        </script>
+    </body>
+    <style>
+        a {
+            color: rgb(239, 249, 183);
+        }
+    </style>
+
+</html>
