@@ -15,8 +15,6 @@ async function upgradeDowngradeHistoryController(req, res) {
             }
         });
         const json = await response.json()
-
-
         const data = json.quoteSummary.result[0]
         console.log(data)
 

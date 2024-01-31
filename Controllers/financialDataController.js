@@ -12,19 +12,19 @@ async function financialDataController(req, res) {
     let financialDataInDB = await SoftCoded.findOne({ ticker: ticker, moduleName: "financialData" }).select('ticker moduleName moduleName queryResult timeSaved date maxLifeTimeType -_id')
 
 
-    if (financialDataInDB && financialDataInDB.date.slice(0, 4) === new Date().toISOString().split('T')[0].slice(0, 4)) {
+    if (financialDataInDB && financialDataInDB.date === new Date().toISOString().split('T')[0]) {
         console.log('serving from memory')
         console.log(financialDataInDB)
         data = JSON.parse(financialDataInDB.queryResult)
         console.log('data is ###########################')
         console.log(data)
-    } else {
+    } else { 
         console.log('serving from fetch')
         try {
-           
-            const results = await yahooFinance.quoteSummary(ticker, { modules: [ "financialData" ] })
+ 
+            const results = await yahooFinance.quoteSummary(ticker, { modules: ["financialData"] })
 
-            
+
             data = results.financialData
             console.log(data)
 
@@ -40,14 +40,14 @@ async function financialDataController(req, res) {
                 })
                 softCoded.save()
             } else {
-                SoftCoded.findOneAndUpdate({ ticker: ticker }, {
+                SoftCoded.findOneAndUpdate({ ticker: ticker, moduleName: "financialData" }, {
                     ticker: ticker,
                     queryResult: JSON.stringify(data),
                     moduleName: "financialData",
                     timeSaved: new Date().valueOf(),
                     date: new Date().toISOString().split('T')[0],
                     maxLifeTimeType: 'thisYear'
-                })
+                }).then(data => console.log(data))
             }
             // --------------------------------------------------------
         } catch (error) {

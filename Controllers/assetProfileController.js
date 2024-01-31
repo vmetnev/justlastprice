@@ -10,19 +10,21 @@ async function assetProfileController(req, res) {
 
     let assetProfileInDB = await SoftCoded.findOne({ ticker: ticker, moduleName: "assetProfile" }).select('ticker moduleName moduleName queryResult timeSaved date maxLifeTimeType -_id')
 
+    console.log()
 
-    if (assetProfileInDB && assetProfileInDB.date.slice(0, 4) === new Date().toISOString().split('T')[0].slice(0, 4)) {
+
+    if (assetProfileInDB && assetProfileInDB.date === new Date().toISOString().split('T')[0]) {
         console.log('serving from memory')
-        console.log(assetProfileInDB)
+        // console.log(assetProfileInDB)
         data = JSON.parse(assetProfileInDB.queryResult)
         console.log('data is ###########################')
         console.log(data)
     } else {
         console.log('serving from fetch')
         try {
-            const results = await yahooFinance.quoteSummary(ticker, { modules: [ "assetProfile" ] })            
+            const results = await yahooFinance.quoteSummary(ticker, { modules: ["assetProfile"] })
             data = results.assetProfile
-            console.log(data)
+            // console.log(data)
 
             // --------------------------------------------------------
             if (!assetProfileInDB) {
@@ -36,14 +38,19 @@ async function assetProfileController(req, res) {
                 })
                 softCoded.save()
             } else {
-                SoftCoded.findOneAndUpdate({ ticker: ticker }, {
+                console.log("updating db ..........................................")
+
+                let found = await SoftCoded.findOne({ ticker: ticker, moduleName: "assetProfile" })
+
+                console.log(ticker)
+                SoftCoded.findOneAndUpdate({ ticker: ticker, moduleName: "assetProfile" }, {
                     ticker: ticker,
                     queryResult: JSON.stringify(data),
                     moduleName: "assetProfile",
                     timeSaved: new Date().valueOf(),
                     date: new Date().toISOString().split('T')[0],
                     maxLifeTimeType: 'thisYear'
-                })
+                }).then(data => console.log(data))
             }
             // --------------------------------------------------------
         } catch (error) {
@@ -62,21 +69,15 @@ async function assetProfileController(req, res) {
     structure.sector = data.sector
     structure.website = data.website
     structure.longBusinessSummary = data.longBusinessSummary
-    structure.fullTimeEmployees = data.fullTimeEmployees    
-    Object.assign(fullStucture,structure )
+    structure.fullTimeEmployees = data.fullTimeEmployees
+    Object.assign(fullStucture, structure)
     fullStucture.assetProfileFullObject = Object.assign({}, structure)
-    
-    console.log('----------------- FULL STRUCTURE -----------------------------')
-    console.log(fullStucture)
-    console.log('--------------------------------------------------------------')
+
+    // console.log('----------------- FULL STRUCTURE -----------------------------')
+    // // console.log(fullStucture)
+    // console.log('--------------------------------------------------------------')
 
     res.json(fullStucture[service])
-
-
-
-
-
 }
-
 
 module.exports = assetProfileController

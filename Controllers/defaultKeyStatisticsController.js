@@ -10,7 +10,7 @@ async function defaultKeyStatisticsController(req, res) {
 
     let defaultKeyStatisticsInDB = await SoftCoded.findOne({ ticker: ticker, moduleName: "defaultKeyStatistics" }).select('ticker moduleName moduleName queryResult timeSaved date maxLifeTimeType -_id')
 
-    if (defaultKeyStatisticsInDB && defaultKeyStatisticsInDB.date.slice(0, 4) === new Date().toISOString().split('T')[0].slice(0, 4)) {
+    if (defaultKeyStatisticsInDB && defaultKeyStatisticsInDB.date === new Date().toISOString().split('T')[0]) {
         console.log('serving from memory')
         console.log(defaultKeyStatisticsInDB)
         data = JSON.parse(defaultKeyStatisticsInDB.queryResult)
@@ -20,8 +20,8 @@ async function defaultKeyStatisticsController(req, res) {
         console.log('serving from fetch')
         try {
 
-            const results = await yahooFinance.quoteSummary(ticker, { modules: [ "defaultKeyStatistics" ] })
-            data = results.defaultKeyStatistics           
+            const results = await yahooFinance.quoteSummary(ticker, { modules: ["defaultKeyStatistics"] })
+            data = results.defaultKeyStatistics
 
             // --------------------------------------------------------
             if (!defaultKeyStatisticsInDB) {
@@ -35,14 +35,14 @@ async function defaultKeyStatisticsController(req, res) {
                 })
                 softCoded.save()
             } else {
-                SoftCoded.findOneAndUpdate({ ticker: ticker }, {
+                SoftCoded.findOneAndUpdate({ ticker: ticker, moduleName: "defaultKeyStatistics" }, {
                     ticker: ticker,
                     queryResult: JSON.stringify(data),
                     moduleName: "defaultKeyStatistics",
                     timeSaved: new Date().valueOf(),
                     date: new Date().toISOString().split('T')[0],
                     maxLifeTimeType: 'today'
-                })
+                }).then(data => console.log(data))
             }
             // --------------------------------------------------------
         } catch (error) {
@@ -67,16 +67,33 @@ async function defaultKeyStatisticsController(req, res) {
     structure.shortPercentOfFloat = data.shortPercentOfFloat
     structure.beta = data.beta
     structure.priceToBook = data.priceToBook
-    structure.lastFiscalYearEnd = new Date(data.lastFiscalYearEnd).toISOString().split("T")[0]
-    structure.nextFiscalYearEnd = new Date(data.nextFiscalYearEnd).toISOString().split("T")[0]
-    structure.mostRecentQuarter = new Date(data.mostRecentQuarter).toISOString().split("T")[0]
+
+    try {
+        structure.lastFiscalYearEnd = new Date(data.lastFiscalYearEnd).toISOString().split("T")[0]
+    } catch (error) {
+        structure.lastFiscalYearEnd = data.lastFiscalYearEnd
+    }
+    
+    try {
+        structure.nextFiscalYearEnd = new Date(data.nextFiscalYearEnd).toISOString().split("T")[0]
+    } catch (error) {
+        structure.nextFiscalYearEnd = data.nextFiscalYearEnd
+    }
+
+    try {
+        structure.mostRecentQuarter = new Date(data.mostRecentQuarter).toISOString().split("T")[0]
+    } catch (error) {
+        structure.mostRecentQuarter = data.mostRecentQuarter
+    }
+
     structure.netIncomeToCommon = data.netIncomeToCommon
     structure.trailingEps = data.trailingEps
     structure.forwardEps = data.forwardEps
-    structure.enterpriseToRevenue= data.enterpriseToRevenue
+    structure.enterpriseToRevenue = data.enterpriseToRevenue
     structure.enterpriseToEbitda = data.enterpriseToEbitda
     structure["52WeekChange"] = data["52WeekChange"]
     structure.enterpriseToEbitda = data.enterpriseToEbitda
+    structure.totalAssets = data.totalAssets
 
     Object.assign(fullStucture, structure)
 

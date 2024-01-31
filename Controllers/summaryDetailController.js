@@ -38,14 +38,14 @@ async function summaryDetailController(req, res) {
                 })
                 softCoded.save()
             } else {
-                SoftCoded.findOneAndUpdate({ ticker: ticker }, {
+                SoftCoded.findOneAndUpdate({ ticker: ticker,moduleName: "summaryDetail" }, {
                     ticker: ticker,
                     queryResult: JSON.stringify(data),
                     moduleName: "summaryDetail",
                     timeSaved: new Date().valueOf(),
                     date: new Date().toISOString().split('T')[0],
                     maxLifeTimeType: 'today'
-                })
+                }).then(data=>console.log(data))
             }
         }
         catch (error) {

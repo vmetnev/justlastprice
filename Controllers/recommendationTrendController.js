@@ -7,16 +7,13 @@ async function recommendationTrendController(req, res) {
 
     let data = {}
 
-    console.log(`RecommendationTrend ticker = ${ticker} service=${service}`)
+    console.log(`RecommendationTrend ticker = ${ticker} service= ${service} moduleName = recommendationTrend`)
 
     let recTrendObjectInDB = await SoftCoded.findOne({ ticker: ticker, moduleName: "recommendationTrend" }).select('ticker moduleName moduleName queryResult timeSaved date maxLifeTimeType -_id')
 
     if (recTrendObjectInDB && recTrendObjectInDB.date === new Date().toISOString().split('T')[0]) {
-        console.log('serving from memory')
-        console.log(recTrendObjectInDB)
+        console.log('serving from memory')        
         data = JSON.parse(recTrendObjectInDB.queryResult)
-        console.log('data is ###########################')
-        console.log(data)
     } else {
         console.log('serving from fetch')
 
@@ -36,14 +33,15 @@ async function recommendationTrendController(req, res) {
                 })
                 softCoded.save()
             } else {
-                SoftCoded.findOneAndUpdate({ ticker: ticker }, {
+                console.log('updating db.......................')
+                SoftCoded.findOneAndUpdate({ ticker: ticker, moduleName: "recommendationTrend" }, {
                     ticker: ticker,
                     queryResult: JSON.stringify(data),
                     moduleName: "recommendationTrend",
                     timeSaved: new Date().valueOf(),
                     date: new Date().toISOString().split('T')[0],
                     maxLifeTimeType: 'today'
-                })
+                }).then(data=>{console.log(data)})
             }
         }
         catch (error) {
@@ -103,6 +101,7 @@ async function recommendationTrendController(req, res) {
 
     console.log(service)
     console.log(req.query)
+    // console.log(fullStucture)
     console.log(fullStucture[service])
 
     // switch (service) {

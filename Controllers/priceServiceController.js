@@ -1,11 +1,19 @@
+const SoftCoded = require('../Models/SoftCoded')
 const yahooFinance = require('yahoo-finance2').default;
 
 async function priceServiceController(req, res) {
-    console.log(req.query)
+    console.log(`ticker is ${req.query.ticker} service is ${req.query.service} ddate is ${req.query.ddate} on module priceServiceController`)
 
     getPriceRange(req.query.ticker).then(data => {
-
+        console.log("#######################")
+        console.log(data[data.length - 1])
+        console.log(data)
+        console.log("#######################")
+ 
         let lastPrice = data[data.length - 1][1]
+        
+        console.log(`last price is ${lastPrice}`)
+        console.log(data)
         let lastPriceDate = data[data.length - 1][0]
         let lastPriceFullObject = [lastPriceDate, lastPrice]
         let previousDayPrice = data[data.length - 2][1]
@@ -84,14 +92,9 @@ async function priceServiceController(req, res) {
             ['high52Price']: high52Price,
         }
 
-
         priceObject.priceServiceFullObject = Object.assign({}, priceObject)
 
-        console.log('----------------------')
         console.log(req.query.service)
-        // console.log(priceObject[req.query.service])
-        // console.log(priceObject)
-        // console.log(priceObject[req.query.service])
 
         if (!priceObject[req.query.service]) {
             res.json("n.a. service name")
@@ -123,35 +126,39 @@ async function priceServiceController(req, res) {
         res.json({ error: error })
     })
 
-    function weeks52(ddata) {
-        console.log(ddata)
+    function weeks52(data) {
+        console.log("**************************")
+        console.log(data.length)
+        console.log(data.length[data.length - 1])
+        console.log("**************************")
         let lowObj = {}
         let highObj = {}
 
-        lowObj.date = ddata[0][0]
-        lowObj.price = parseFloat(ddata[0][1])
-        highObj.date = ddata[0][0]
-        highObj.price = parseFloat(ddata[0][1])
+        lowObj.date = data[0][0]
+        lowObj.price = parseFloat(data[0][1])
+        highObj.date = data[0][0]
+        highObj.price = parseFloat(data[0][1])
 
-
-        for (let q = 0; q < ddata.length - 1; q++) {
-            if (ddata[q][1] < lowObj.price) {
-                lowObj.date = ddata[q][0]
-                lowObj.price = parseFloat(ddata[q][1])
+        for (let q = 0; q < data.length; q++) {
+            if (data[q][1] < lowObj.price) {
+                lowObj.date = data[q][0]
+                lowObj.price = parseFloat(data[q][1])
             }
-            if (ddata[q][1] > highObj.price) {
-                highObj.date = ddata[q][0]
-                highObj.price = parseFloat(ddata[q][1])
+            if (data[q][1] > highObj.price) {
+                highObj.date = data[q][0]
+                highObj.price = parseFloat(data[q][1])
             }
         }
 
+        console.log('---------------------------------------')
+        console.log(data[data.length - 1])
         console.log('---------------------------------------')
         console.log('lowObj')
         console.log("lowObj.date " + lowObj.date)
         console.log(lowObj.price)
         console.log('highObj')
         console.log("highObj.date " + highObj.date)
-        console.log( highObj.price)
+        console.log(highObj.price)
         console.log('---------------------------------------')
 
         return [
@@ -170,29 +177,28 @@ async function getPriceRange(ticker) {// just returns one year price range
 
         let today = new Date(new Date().toISOString().split('T')[0])
         let todayShortValue = Math.round(new Date().valueOf() / 1000, 0)
-        let dateMinus12MShortValue = new Date((new Date(new Date(today).setDate(new Date(today).getDate() - 400))).toISOString().split('T')[0]) / 1000
+        let dateMinus12MShortValue = new Date((new Date(new Date(today).setDate(new Date(today).getDate() - 369))).toISOString().split('T')[0]) / 1000
 
-        try {
-            let url = `https://69.147.92.11/v7/finance/download/${ticker}?period1=${dateMinus12MShortValue}&period2=${todayShortValue}&interval=1d&events=history&includeAdjustedClose=true&ssl=true`
+        try {          
+console.log('###################################')
+console.log(ticker)
+console.log('###################################')
 
-            let response = await fetch(url, {
-                headers: {
-                    'Host': 'query2.finance.yahoo.com'
-                }
-            });
+            let url = `https://query1.finance.yahoo.com/v7/finance/download/${ticker}?period1=${dateMinus12MShortValue}&period2=${todayShortValue}&interval=1d&events=history&includeAdjustedClose=true`
 
+            let response = await fetch(url);
+            console.log(response.statusText)
             if (response.statusText === "OK") {
                 let data = await response.text()
                 data = data.split(String.fromCharCode(10))
                 let output = []
-      
 
                 for (let q = 1; q < data.length; q++) {
                     let day = []
                     day.push(data[q].split(',')[0])
                     day.push(data[q].split(',')[4])
-                    output.push(day)                    
-                }                
+                    output.push(day)
+                }
                 resolve(output)
             } else {
                 throw new Error(`failed fetch - ${response.statusText}`)

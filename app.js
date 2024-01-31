@@ -15,6 +15,15 @@ const priceModuleController = require('./Controllers/priceModuleController')
 const priceServiceController = require('./Controllers/priceServiceController')
 const upgradeDowngradeHistoryController = require('./Controllers/upgradeDowngradeHistoryController')
 const summaryDetailController = require('./Controllers/summaryDetailController')
+const chartDataController = require('./Controllers/chartDataController')
+const fundProfileController = require('./Controllers/fundProfileController')
+const dividendController = require('./Controllers/dividendController')
+const getNewsController = require('./Controllers/getNewsController')
+const saveNewsController = require('./Controllers/saveNewsController')
+const getTagsController = require('./Controllers/getTagsController')
+const addTagController = require('./Controllers/addTagController')
+const deleteTagController = require('./Controllers/deleteTagController')
+
 
 const {
     mongooseConnect
@@ -22,6 +31,7 @@ const {
 mongooseConnect()
 
 const cors = require("cors");
+const getNewsContoller = require('./Controllers/getNewsController');
 const corsOptions = {
     origin: '*',
     credentials: true, //access-control-allow-credentials:true
@@ -34,10 +44,6 @@ app.use(bodyParser.urlencoded({
 }))
 app.use(bodyParser.json())
 app.use(cors(corsOptions))
-app.use((req, res, next) => {
-    console.log(req.query)
-    next()
-})
 
 
 app.get('/upgradeDowngradeHistoryData', upgradeDowngradeHistoryController)
@@ -51,7 +57,16 @@ app.post('/defaultKeyStatistics', defaultKeyStatisticsController)
 app.post('/priceModule', priceModuleController)
 app.post('/priceService', priceServiceController)
 app.post('/summaryDetail', summaryDetailController)
+app.post('/chartData', chartDataController)
+app.post('/fundProfile', fundProfileController)
+app.post('/dividend', dividendController)
+app.get('/getNews', getNewsController)
+app.post('/saveNews', saveNewsController)
+
+app.get('/getTags', getTagsController)
+app.post('/addTag', addTagController)
+app.get('/deleteTag', deleteTagController)
 
 app.listen(3001, () => {
     console.log('Server started at port 3001')
-})    
+})       

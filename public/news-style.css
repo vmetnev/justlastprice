@@ -1,0 +1,61 @@
+.story-holder {
+    margin: 10px;
+    padding-top: 5px;
+    outline: 1px solid lightgray;
+    font-size: 14px;
+}
+
+.story-title {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 5px;
+}
+
+.story-title:hover {
+    color: chocolate
+}
+
+.story-time {
+    padding: 0;
+    margin: 5px;
+    color: green;
+}
+
+.story-publisher {
+    margin: 5px;
+}
+
+.story-save-button {
+    margin: 3px;
+    font-size: 12px;
+}
+
+
+.output-tag-holder{
+    margin-top:10px;
+    margin-bottom:10px;
+    padding:5px;
+    outline: 1px solid gray;
+}
+
+.tag {
+    outline: 1px solid gray;
+    border-radius: 2px;
+    padding: 3px;
+    font-size: 12px;
+    display: inline-block;
+    margin: 3px;
+    background-color: transparent;
+}
+
+.tag:hover {
+    background-color: rgb(218, 195, 143);
+    cursor: pointer;
+}
+
+.tag-active {
+    background-color: rgb(241, 198, 103);
+}
+
