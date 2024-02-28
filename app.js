@@ -23,7 +23,8 @@ const saveNewsController = require('./Controllers/saveNewsController')
 const getTagsController = require('./Controllers/getTagsController')
 const addTagController = require('./Controllers/addTagController')
 const deleteTagController = require('./Controllers/deleteTagController')
-
+const chartDataController2 = require('./Controllers/chartDataController2')
+const reportsController = require('./Controllers/reportsController')
 
 const {
     mongooseConnect
@@ -38,13 +39,14 @@ const corsOptions = {
     optionSuccessStatus: 200,
 }
 
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public'), {
+    extensions: ['html']
+}))
 app.use(bodyParser.urlencoded({
     extended: false
 }))
 app.use(bodyParser.json())
 app.use(cors(corsOptions))
-
 
 app.get('/upgradeDowngradeHistoryData', upgradeDowngradeHistoryController)
 app.post('/earningsTrend', earningsTrendController)
@@ -62,10 +64,12 @@ app.post('/fundProfile', fundProfileController)
 app.post('/dividend', dividendController)
 app.get('/getNews', getNewsController)
 app.post('/saveNews', saveNewsController)
-
 app.get('/getTags', getTagsController)
 app.post('/addTag', addTagController)
 app.get('/deleteTag', deleteTagController)
+app.post('/fiveYearDataPoint', chartDataController2)
+app.post('/reports', reportsController)
+
 
 app.listen(3001, () => {
     console.log('Server started at port 3001')

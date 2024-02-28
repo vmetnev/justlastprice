@@ -1,4 +1,4 @@
-const SoftCoded = require('../Models/SoftCoded')
+
 const yahooFinance = require('yahoo-finance2').default;
 
 async function priceServiceController(req, res) {
@@ -7,13 +7,13 @@ async function priceServiceController(req, res) {
     getPriceRange(req.query.ticker).then(data => {
         console.log("#######################")
         console.log(data[data.length - 1])
-        console.log(data)
+        // console.log(data)
         console.log("#######################")
- 
+
         let lastPrice = data[data.length - 1][1]
-        
+
         console.log(`last price is ${lastPrice}`)
-        console.log(data)
+        // console.log(data)
         let lastPriceDate = data[data.length - 1][0]
         let lastPriceFullObject = [lastPriceDate, lastPrice]
         let previousDayPrice = data[data.length - 2][1]
@@ -107,19 +107,20 @@ async function priceServiceController(req, res) {
         // --------------------------------------------------------------------------------------------------------------------------
         function extractDateAndPrice(target) {
 
-            counter = data.length
+            counter = data.length-1
             target = target
             do {
                 counter--
+                
                 if (data[counter][0] === target || new Date(data[counter][0]).valueOf() < new Date(target).valueOf()) break
-            } while (counter > -1)
+            } while (counter > 0)
 
             return {
                 fullObject: data[counter],
                 date: data[counter][0],
                 price: data[counter][1]
             }
-        }
+        } 
     }).catch(error => {
         console.log('error')
         console.log(error)
@@ -127,10 +128,7 @@ async function priceServiceController(req, res) {
     })
 
     function weeks52(data) {
-        console.log("**************************")
-        console.log(data.length)
-        console.log(data.length[data.length - 1])
-        console.log("**************************")
+
         let lowObj = {}
         let highObj = {}
 
@@ -179,10 +177,10 @@ async function getPriceRange(ticker) {// just returns one year price range
         let todayShortValue = Math.round(new Date().valueOf() / 1000, 0)
         let dateMinus12MShortValue = new Date((new Date(new Date(today).setDate(new Date(today).getDate() - 369))).toISOString().split('T')[0]) / 1000
 
-        try {          
-console.log('###################################')
-console.log(ticker)
-console.log('###################################')
+        try {
+            console.log('###################################')
+            console.log(ticker)
+            console.log('###################################')
 
             let url = `https://query1.finance.yahoo.com/v7/finance/download/${ticker}?period1=${dateMinus12MShortValue}&period2=${todayShortValue}&interval=1d&events=history&includeAdjustedClose=true`
 

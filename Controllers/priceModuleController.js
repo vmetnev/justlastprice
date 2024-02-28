@@ -1,4 +1,4 @@
-const SoftCoded = require('../Models/SoftCoded')
+
 const yahooFinance = require('yahoo-finance2').default;
 
 async function priceModuleController(req, res) {
@@ -18,50 +18,6 @@ async function priceModuleController(req, res) {
     }
 
 
-
-
-    //----
-
-    // let priceInDB = await SoftCoded.findOne({ ticker: ticker, moduleName: "price" }).select('ticker moduleName moduleName queryResult timeSaved date maxLifeTimeType -_id')
-    // if (priceInDB && priceInDB.date === new Date().toISOString().split('T')[0]) {
-    //     console.log('serving from memory')
-    //     data = JSON.parse(priceInDB.queryResult)
-    // } else {
-    //     console.log('serving from fetch')
-    //     try {
-    //         // const results = await yahooFinance.quoteSummary(ticker, { modules: ["price"] })
-    //         // data = results.price
-    //         // if (!priceInDB) {
-    //         //     console.log('new ticker in priceModuleController')
-    //         //     const softCoded = new SoftCoded({
-    //         //         ticker: ticker,
-    //         //         queryResult: JSON.stringify(data),
-    //         //         moduleName: "price",
-    //         //         timeSaved: new Date().valueOf(),
-    //         //         date: new Date().toISOString().split('T')[0],
-    //         //         maxLifeTimeType: 'today'
-    //         //     })
-    //         //     softCoded.save()
-    //         // } else {
-    //         //     console.log('updating value in db')
-    //         //     SoftCoded.findOneAndUpdate({ ticker: ticker, moduleName: "price" }, {
-    //         //         ticker: ticker,
-    //         //         queryResult: JSON.stringify(data),
-    //         //         moduleName: "price",
-    //         //         timeSaved: new Date().valueOf(),
-    //         //         date: new Date().toISOString().split('T')[0],
-    //         //         maxLifeTimeType: 'today'
-    //         //     }).then(data => {
-    //         //         console.log(data)
-    //         //     })
-    //         // }
-    //     } catch (error) {
-    //         console.log(error)
-    //         res.json({
-    //             resp: "n.a."
-    //         })
-    //     }
-    // }
 
     let fullStucture = {}
     let structure = {}
