@@ -1,5 +1,5 @@
 
-const SoftCoded = require('../Models/SoftCoded')
+
 const yahooFinance = require('yahoo-finance2').default;
 
 async function chartDataController(req, res) {

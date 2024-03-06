@@ -1,66 +1,24 @@
 
-const SoftCoded = require('../Models/SoftCoded')
 const yahooFinance = require('yahoo-finance2').default;
-
 
 async function financialDataController(req, res) {
 
     let { ticker, service } = req.query
     console.log(`financialData  ticker = ${ticker} service=${service}`)
     let data = {}
-
-    let financialDataInDB = await SoftCoded.findOne({ ticker: ticker, moduleName: "financialData" }).select('ticker moduleName moduleName queryResult timeSaved date maxLifeTimeType -_id')
-
-
-    if (financialDataInDB && financialDataInDB.date === new Date().toISOString().split('T')[0]) {
-        console.log('serving from memory')
-        console.log(financialDataInDB)
-        data = JSON.parse(financialDataInDB.queryResult)
-        console.log('data is ###########################')
-        console.log(data)
-    } else { 
-        console.log('serving from fetch')
-        try {
- 
+            try { 
             const results = await yahooFinance.quoteSummary(ticker, { modules: ["financialData"] })
-
-
             data = results.financialData
-            console.log(data)
-
-            // --------------------------------------------------------
-            if (!financialDataInDB) {
-                const softCoded = new SoftCoded({
-                    ticker: ticker,
-                    queryResult: JSON.stringify(data),
-                    moduleName: "financialData",
-                    timeSaved: new Date().valueOf(),
-                    date: new Date().toISOString().split('T')[0],
-                    maxLifeTimeType: 'thisYear'
-                })
-                softCoded.save()
-            } else {
-                SoftCoded.findOneAndUpdate({ ticker: ticker, moduleName: "financialData" }, {
-                    ticker: ticker,
-                    queryResult: JSON.stringify(data),
-                    moduleName: "financialData",
-                    timeSaved: new Date().valueOf(),
-                    date: new Date().toISOString().split('T')[0],
-                    maxLifeTimeType: 'thisYear'
-                }).then(data => console.log(data))
-            }
-            // --------------------------------------------------------
+            console.log(data)          
         } catch (error) {
             console.log(error)
             res.json({
                 resp: "n.a."
-            })
-        }
+            })        
     }
 
     let fullStucture = {}
     let structure = {}
-
 
     structure.currentPrice = data.currentPrice
     structure.targetHighPrice = data.targetHighPrice

@@ -18,11 +18,14 @@ const summaryDetailController = require('./Controllers/summaryDetailController')
 const chartDataController = require('./Controllers/chartDataController')
 const fundProfileController = require('./Controllers/fundProfileController')
 const dividendController = require('./Controllers/dividendController')
+
 const getNewsController = require('./Controllers/getNewsController')
 const saveNewsController = require('./Controllers/saveNewsController')
 const getTagsController = require('./Controllers/getTagsController')
 const addTagController = require('./Controllers/addTagController')
 const deleteTagController = require('./Controllers/deleteTagController')
+
+
 const chartDataController2 = require('./Controllers/chartDataController2')
 const reportsController = require('./Controllers/reportsController')
 
@@ -62,13 +65,18 @@ app.post('/summaryDetail', summaryDetailController)
 app.post('/chartData', chartDataController)
 app.post('/fundProfile', fundProfileController)
 app.post('/dividend', dividendController)
+app.post('/fiveYearDataPoint', chartDataController2)
+app.post('/reports', reportsController)
+
+
+
 app.get('/getNews', getNewsController)
 app.post('/saveNews', saveNewsController)
 app.get('/getTags', getTagsController)
 app.post('/addTag', addTagController)
 app.get('/deleteTag', deleteTagController)
-app.post('/fiveYearDataPoint', chartDataController2)
-app.post('/reports', reportsController)
+
+
 
 
 app.listen(3001, () => {

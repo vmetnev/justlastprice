@@ -17,8 +17,6 @@ async function priceModuleController(req, res) {
             })
     }
 
-
-
     let fullStucture = {}
     let structure = {}
     console.log(data)

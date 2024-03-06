@@ -1,5 +1,3 @@
-
-const SoftCoded = require('../Models/SoftCoded')
 const yahooFinance = require('yahoo-finance2').default;
 
 async function defaultKeyStatisticsController(req, res) {
@@ -8,49 +6,15 @@ async function defaultKeyStatisticsController(req, res) {
     console.log(`defaultKeyStatistics  ticker = ${ticker} service=${service}`)
     let data = {}
 
-    let defaultKeyStatisticsInDB = await SoftCoded.findOne({ ticker: ticker, moduleName: "defaultKeyStatistics" }).select('ticker moduleName moduleName queryResult timeSaved date maxLifeTimeType -_id')
 
-    if (defaultKeyStatisticsInDB && defaultKeyStatisticsInDB.date === new Date().toISOString().split('T')[0]) {
-        console.log('serving from memory')
-        console.log(defaultKeyStatisticsInDB)
-        data = JSON.parse(defaultKeyStatisticsInDB.queryResult)
-        console.log('data is ###########################')
-        console.log(data)
-    } else {
-        console.log('serving from fetch')
-        try {
-
-            const results = await yahooFinance.quoteSummary(ticker, { modules: ["defaultKeyStatistics"] })
-            data = results.defaultKeyStatistics
-
-            // --------------------------------------------------------
-            if (!defaultKeyStatisticsInDB) {
-                const softCoded = new SoftCoded({
-                    ticker: ticker,
-                    queryResult: JSON.stringify(data),
-                    moduleName: "defaultKeyStatistics",
-                    timeSaved: new Date().valueOf(),
-                    date: new Date().toISOString().split('T')[0],
-                    maxLifeTimeType: 'today'
-                })
-                softCoded.save()
-            } else {
-                SoftCoded.findOneAndUpdate({ ticker: ticker, moduleName: "defaultKeyStatistics" }, {
-                    ticker: ticker,
-                    queryResult: JSON.stringify(data),
-                    moduleName: "defaultKeyStatistics",
-                    timeSaved: new Date().valueOf(),
-                    date: new Date().toISOString().split('T')[0],
-                    maxLifeTimeType: 'today'
-                }).then(data => console.log(data))
-            }
-            // --------------------------------------------------------
-        } catch (error) {
-            console.log(error)
-            res.json({
-                resp: "n.a."
-            })
-        }
+    try {
+        const results = await yahooFinance.quoteSummary(ticker, { modules: ["defaultKeyStatistics"] })
+        data = results.defaultKeyStatistics
+    } catch (error) {
+        console.log(error)
+        res.json({
+            resp: "n.a."
+        })
     }
 
     let fullStucture = {}
@@ -73,7 +37,7 @@ async function defaultKeyStatisticsController(req, res) {
     } catch (error) {
         structure.lastFiscalYearEnd = data.lastFiscalYearEnd
     }
-    
+
     try {
         structure.nextFiscalYearEnd = new Date(data.nextFiscalYearEnd).toISOString().split("T")[0]
     } catch (error) {

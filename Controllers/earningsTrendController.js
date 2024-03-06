@@ -1,68 +1,29 @@
-
-const SoftCoded = require('../Models/SoftCoded')
 const yahooFinance = require('yahoo-finance2').default;
 
 async function earningsTrendController(req, res) {
     let { ticker, service } = req.query
     console.log(`EarningsTrend ticker = ${ticker} service=${service}`)
     let data = {}
-
-    let earningsTrendObjectInDB = await SoftCoded.findOne({ ticker: ticker, moduleName: "earningsTrend" }).select('ticker moduleName moduleName queryResult timeSaved date maxLifeTimeType -_id')
-
     let mistake = false
+    try {
+        let response = await yahooFinance.quoteSummary(ticker, { modules: ["earningsTrend"] })
 
-    if (earningsTrendObjectInDB && earningsTrendObjectInDB.date === new Date().toISOString().split('T')[0]) {
-        console.log('serving from memory')
-        console.log(earningsTrendObjectInDB)
-        data = JSON.parse(earningsTrendObjectInDB.queryResult)
-        console.log('data is ###########################')
+        // if (response.statusText != "OK") {
+        //     res.send("failed fetch")
+        //     return
+        // } 
+
+        console.log(response.statusText)
+        data = response.earningsTrend.trend
         console.log(data)
-    } else {
-        console.log('serving from fetch')
-        try {
-
-            let response = await yahooFinance.quoteSummary(ticker, { modules: ["earningsTrend"] })
-
-            // if (response.statusText != "OK") {
-            //     res.send("failed fetch")
-            //     return
-            // } 
-
-            console.log(response.statusText)
-            data = response.earningsTrend.trend
-            console.log(data)
-
-            // --------------------------------------------------------
-            if (!earningsTrendObjectInDB) {
-                const softCoded = new SoftCoded({
-                    ticker: ticker,
-                    queryResult: JSON.stringify(data),
-                    moduleName: "earningsTrend",
-                    timeSaved: new Date().valueOf(),
-                    date: new Date().toISOString().split('T')[0],
-                    maxLifeTimeType: 'today'
-                })
-                softCoded.save()
-            } else {
-                SoftCoded.findOneAndUpdate({ ticker: ticker }, {
-                    ticker: ticker,
-                    queryResult: JSON.stringify(data),
-                    moduleName: "earningsTrend",
-                    timeSaved: new Date().valueOf(),
-                    date: new Date().toISOString().split('T')[0],
-                    maxLifeTimeType: 'today'
-                }).then(data => console.log(data))
-            }
-            // --------------------------------------------------------
-        } catch (error) {
-            console.log('-------------------')
-            console.log(error)
-            console.log('-------------------')
-            mistake = true
-            res.json({
-                resp: "n.a."
-            })
-        }
+    } catch (error) {
+        console.log('-------------------')
+        console.log(error)
+        console.log('-------------------')
+        mistake = true
+        res.json({
+            resp: "n.a."
+        })
     }
 
     if (mistake === false) {

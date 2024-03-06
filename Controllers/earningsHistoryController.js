@@ -1,62 +1,19 @@
-const SoftCoded = require('../Models/SoftCoded')
 const yahooFinance = require('yahoo-finance2').default;
 
 async function earningsHistoryController(req, res) {
-
     let { ticker, service } = req.query
-
     let data = {}
-
     console.log(`EarningsHistory ticker = ${ticker} service=${service}`)
-
-    let earningsHistoryObjectInDB = await SoftCoded.findOne({ ticker: ticker, moduleName: "earningsHistory" }).select('ticker moduleName moduleName queryResult timeSaved date maxLifeTimeType -_id')
-
-    if (earningsHistoryObjectInDB && earningsHistoryObjectInDB.date === new Date().toISOString().split('T')[0]) {
-        console.log('serving from memory')
-        console.log(earningsHistoryObjectInDB)
-        data = JSON.parse(earningsHistoryObjectInDB.queryResult)
-        console.log('data is ###########################')
-        console.log(data)
-    } else {
-        console.log('serving from fetch')
-
-        try {
-
-            let response = await yahooFinance.quoteSummary(ticker, { modules: ["earningsHistory"] })
-
-            console.log(response.statusText)
-
-
-            data = response.earningsHistory.history
-
-            if (!earningsHistoryObjectInDB) {
-                const softCoded = new SoftCoded({
-                    ticker: ticker,
-                    queryResult: JSON.stringify(data),
-                    moduleName: "earningsHistory",
-                    timeSaved: new Date().valueOf(),
-                    date: new Date().toISOString().split('T')[0],
-                    maxLifeTimeType: 'today'
-                })
-                softCoded.save()
-            } else {
-                SoftCoded.findOneAndUpdate({ ticker: ticker, moduleName: "earningsHistory" }, {
-                    ticker: ticker,
-                    queryResult: JSON.stringify(data),
-                    moduleName: "earningsHistory",
-                    timeSaved: new Date().valueOf(),
-                    date: new Date().toISOString().split('T')[0],
-                    maxLifeTimeType: 'today'
-                }).then(data => console.log(data))
-            }
-        }
-        catch (error) {
-            console.log(error)
-            res.json({
-                resp: "n.a."
-            })
-            return
-        }
+    try {
+        let response = await yahooFinance.quoteSummary(ticker, { modules: ["earningsHistory"] })
+        data = response.earningsHistory.history        
+    }
+    catch (error) {
+        console.log(error)
+        res.json({
+            resp: "n.a."
+        })
+        return
     }
 
     let structure0 = {}

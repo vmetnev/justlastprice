@@ -1,5 +1,3 @@
-
-const SoftCoded = require('../Models/SoftCoded')
 const yahooFinance = require('yahoo-finance2').default;
 
 async function recommendationTrendController(req, res) {
@@ -8,52 +6,17 @@ async function recommendationTrendController(req, res) {
     let data = {}
 
     console.log(`RecommendationTrend ticker = ${ticker} service= ${service} moduleName = recommendationTrend`)
-
-    let recTrendObjectInDB = await SoftCoded.findOne({ ticker: ticker, moduleName: "recommendationTrend" }).select('ticker moduleName moduleName queryResult timeSaved date maxLifeTimeType -_id')
-
-    if (recTrendObjectInDB && recTrendObjectInDB.date === new Date().toISOString().split('T')[0]) {
-        console.log('serving from memory')        
-        data = JSON.parse(recTrendObjectInDB.queryResult)
-    } else {
-        console.log('serving from fetch')
-
+   
         try {
             const results = await yahooFinance.quoteSummary(ticker, { modules: ["recommendationTrend"] })
-
-            data = results.recommendationTrend.trend
-
-            if (!recTrendObjectInDB) {
-                const softCoded = new SoftCoded({
-                    ticker: ticker,
-                    queryResult: JSON.stringify(data),
-                    moduleName: "recommendationTrend",
-                    timeSaved: new Date().valueOf(),
-                    date: new Date().toISOString().split('T')[0],
-                    maxLifeTimeType: 'today'
-                })
-                softCoded.save()
-            } else {
-                console.log('updating db.......................')
-                SoftCoded.findOneAndUpdate({ ticker: ticker, moduleName: "recommendationTrend" }, {
-                    ticker: ticker,
-                    queryResult: JSON.stringify(data),
-                    moduleName: "recommendationTrend",
-                    timeSaved: new Date().valueOf(),
-                    date: new Date().toISOString().split('T')[0],
-                    maxLifeTimeType: 'today'
-                }).then(data=>{console.log(data)})
-            }
+            data = results.recommendationTrend.trend       
         }
         catch (error) {
             console.log(error)
             res.json({
                 resp: "n.a."
-            })
-        }
+            })        
     }
-
-
-
 
     let structure0 = {}
     let structure1 = {}
